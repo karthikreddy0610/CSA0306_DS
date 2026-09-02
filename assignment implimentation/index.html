@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee HashDB</title>
+    <style>
+        /* Modern Typography and Variables */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .dashboard {
+            width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-span { grid-column: 1 / -1; }
+        
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 2.2rem;
+            background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle { margin: 0 0 24px 0; color: var(--text-muted); }
+
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
+        }
+
+        h2 { margin-top: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;}
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="number"]:focus { border-color: var(--accent-primary); }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        button:hover { filter: brightness(1.1); transform: scale(1.02); }
+        button:active { transform: scale(0.98); }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .stats-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .stat-value { font-weight: 800; color: var(--accent-secondary); }
+        
+        #console-output {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #4ade80;
+            min-height: 40px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard">
+        <div class="header-span">
+            <h1>Employee ID Management</h1>
+            <p class="subtitle">Hash Table Performance & Collision Analysis</p>
+        </div>
+
+        <!-- Left Column: Operations -->
+        <div class="card">
+            <h2>⚙️ Operations</h2>
+            <p class="subtitle">Insert or search for an Employee ID (e.g., 1001)</p>
+            <input type="number" id="empId" placeholder="Enter Employee ID...">
+            <div style="display: flex; gap: 12px;">
+                <button onclick="handleAction('Insert')">Insert ID</button>
+                <button onclick="handleAction('Search')" style="background: rgba(255,255,255,0.1); box-shadow: none;">Search ID</button>
+            </div>
+            <div id="console-output">System ready...</div>
+        </div>
+
+        <!-- Right Column: Performance Stats -->
+        <div class="card">
+            <h2>📊 Real-Time Analytics</h2>
+            <p class="subtitle">Simulated data mapped from C Backend</p>
+            
+            <div class="stats-row">
+                <span>Load Factor (α)</span>
+                <span class="stat-value" id="loadFactor">0.00</span>
+            </div>
+            <div class="stats-row">
+                <span>Separate Chaining Collisions</span>
+                <span class="stat-value" id="chainCols">0</span>
+            </div>
+            <div class="stats-row">
+                <span>Linear Probing Collisions</span>
+                <span class="stat-value" id="linearCols">0</span>
+            </div>
+            <div class="stats-row">
+                <span>Quadratic Probing Collisions</span>
+                <span class="stat-value" id="quadCols">0</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JS Logic representing the connection to the C Backend
+        let totalItems = 0;
+        const TABLE_SIZE = 1009;
+        
+        // Simulated tracking (In a real app, this data comes from the C Backend)
+        let tracking = { chain: 0, linear: 0, quad: 0 };
+
+        function handleAction(actionType) {
+            const idInput = document.getElementById('empId').value;
+            const output = document.getElementById('console-output');
+
+            if(!idInput) {
+                output.style.color = '#ef4444';
+                output.innerText = "Error: Please enter an Employee ID.";
+                return;
+            }
+
+            // Simulate backend processing time and collision math
+            output.style.color = '#4ade80';
+            output.innerText = `[Backend] ${actionType}ing ID ${idInput} into Hash Tables...`;
+
+            if (actionType === 'Insert') {
+                totalItems++;
+                // Simulating collisions for visual demonstration
+                if (totalItems > 1) {
+                    tracking.chain += Math.floor(Math.random() * 2);
+                    tracking.linear += Math.floor(Math.random() * 4);
+                    tracking.quad += Math.floor(Math.random() * 3);
+                }
+                updateDashboard();
+            }
+        }
+
+        function updateDashboard() {
+            const loadF = (totalItems / TABLE_SIZE).toFixed(4);
+            document.getElementById('loadFactor').innerText = loadF;
+            document.getElementById('chainCols').innerText = tracking.chain;
+            document.getElementById('linearCols').innerText = tracking.linear;
+            document.getElementById('quadCols').innerText = tracking.quad;
+        }
+    </script>
+</body>
+</html>
